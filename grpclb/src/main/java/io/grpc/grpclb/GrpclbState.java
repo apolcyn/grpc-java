@@ -264,16 +264,21 @@ final class GrpclbState {
 
   private void startLbComm(LbAddressGroup lbAddressGroup) {
     checkNotNull(lbAddressGroup, "lbAddressGroup");
+    System.out.println("LBAddress group authority: " + lbAddressGroup.getAuthority());
+    String targetAuthority = lbAddressGroup.getAuthority();
+    if (targetAuthority.charAt(targetAuthority.length() - 1) == '.') {
+      targetAuthority = targetAuthority.substring(0, targetAuthority.length() - 1);
+    }
     if (lbCommChannel == null) {
       lbCommChannel = helper.createOobChannel(
-          lbAddressGroup.getAddresses(), lbAddressGroup.getAuthority());
-    } else if (lbAddressGroup.getAuthority().equals(lbCommChannel.authority())) {
+          lbAddressGroup.getAddresses(), targetAuthority);
+    } else if (targetAuthority.equals(lbCommChannel.authority())) {
       helper.updateOobChannelAddresses(lbCommChannel, lbAddressGroup.getAddresses());
     } else {
       // Full restart of channel
       shutdownLbComm();
       lbCommChannel = helper.createOobChannel(
-          lbAddressGroup.getAddresses(), lbAddressGroup.getAuthority());
+          lbAddressGroup.getAddresses(), targetAuthority);
     }
   }
 
